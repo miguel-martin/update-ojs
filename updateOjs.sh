@@ -3,6 +3,8 @@
 backupTo=/home/miguelm/ojs-backups/`date -Ins` # where to backup
 pathToOjs=/var/www/html/ojs # path to old ojs folder
 dbName=ojs # ojs dbname
+apacheUser=apache # apache username
+apacheGroup=apache # apache group
 oldVersion=`grep 'Git tag' /var/www/html/ojs/docs/RELEASE | awk {'print $3'}` # Old version is something like 3_2_1-1
 newVersionUrl=https://pkp.sfu.ca/ojs/download/ojs-3.2.1-2.tar.gz # Fill in with the corresponding url
 
@@ -10,6 +12,7 @@ newVersionUrl=https://pkp.sfu.ca/ojs/download/ojs-3.2.1-2.tar.gz # Fill in with 
 ### PRINTING COLORS ###
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
 
@@ -42,48 +45,63 @@ cp -aR $pathToOjs $backupTo/ojs-$oldVersion
 echo -e "${GREEN}Dumping database to backup dir $backupTo ${NC}"
 mysqldump -u root -p $dbName > $backupTo/`date -Ins`.sql
 
+### STOP APACHE AND MYSQL ###
+echo -e "${GREEN}Stopping Apache...${NC}"
+service httpd stop
+
+echo -e "${GREEN}Stopping MySQL...${NC}"
+service mysqld stop
 
 ### REMOVE PREVIOUS OJS FROM htdocs ### 
-echo 'Deleting old ojs...'
+echo -e "${GREEN} Deleting old ojs from $pathToOjs${NC}"
 mv $pathToOjs $pathToOjs-$oldVersion #FIXME: It is already backuped, there is no need to keep another copy
 
 ### ADD NEW OJS TO htdocs ### 
-echo 'Moving new OJS to htdocs folder '$pathToOjs
+echo -e "${GREEN} Moving new OJS to htdocs folder $pathToOjs ${NC}"
 cd $tmpDir
 mv `ls` $pathToOjs
-echo 'Deleting tmp dir '$tmpDir
+echo -e "${GREEN} Deleting tmp dir $tmpDir ${NC}"
 rm -Rf $tmpDir
 
 ### COPY OLD OJS config.inc.php file INTO NEW OJS folder ### 
-echo 'Copying old OJS config.inc.php to new OJS \
-      [WARNING] Check RELEASE docs for changes in config.inc.php BEFORE UPDATING DATABASE'
+echo -e "${GREEN} Copying old OJS config.inc.php to new OJS \
+      ${YELLOW} [WARNING] Check RELEASE docs for changes in config.inc.php BEFORE UPDATING DATABASE ${NC}"
 cd $pathToOjs
 mv config.inc.php config.inc.php-ORIGINAL
 cp $backupTo/ojs-$oldVersion/config.inc.php .
 
 
+### COPY PUBLIC FOLDER, THEMES AND PLUGINS FROM PREVIOUS VERSION...
+echo -e "${GREEN} Copying public folder to new OJS ${NC}"
+cd $pathToOjs
+mv public public-ORIGINAL
+cp -R $backupTo/ojs-$oldVersion/public .
+
+echo -e "${GREEN} Copying plugins folder to new OJS ${NC}"
+cd $pathToOjs
+mv plugins plugins-ORIGINAL
+cp -R $backupTo/ojs-$oldVersion/plugins .
+
 ### PREPARE TO UPDATE ###
-#echo 'Stopping Apache...'
-#service httpd stop
-#
-#echo 'Stopping MySQL...'
-#service mysqld stop
-#
-#echo 'Edit config.inc.php and change installed = On to installed = Off'
-#sed -i 's/installed = On/installed = Off/' $pathToOjs/config.inc.php
-#
-#echo 'Running OJS update script...'
-#cd $pathToOjs
-#php tools/upgrade.php upgrade
-#
-#echo 'Edit config.inc.php and change installed = On to installed = Off'
-#sed -i 's/installed = Off/installed = On/' $pathToOjs/config.inc.php
-#
-#echo 'Starting MySQL...'
-#service mysqld start
-#
-#echo 'Starting Apache...'
-#service httpd start
+
+echo -e "${GREEN}Editing config.inc.php and change 'installed = On' to 'installed = Off' ${NC}"
+sed -i 's/installed = On/installed = Off/' $pathToOjs/config.inc.php
+
+echo -e "${GREEN}Running OJS update script...${NC}"
+cd $pathToOjs
+php tools/upgrade.php upgrade
+
+echo -e "${GREEN}Edit config.inc.php and change 'installed = Off' to 'installed = On' ${NC}"
+sed -i 's/installed = Off/installed = On/' $pathToOjs/config.inc.php
+
+cd $pathToOjs
+chown -R $apacheUser:$apacheGroup *
+
+echo -e "${GREEN}Starting MySQL...${NC}"
+service mysqld start
+
+echo -e "${GREEN}Starting Apache...${NC}"
+service httpd start
 
 
 
