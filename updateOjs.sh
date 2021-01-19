@@ -45,12 +45,12 @@ cp -aR $pathToOjs $backupTo/ojs-$oldVersion
 echo -e "${GREEN}Dumping database to backup dir $backupTo ${NC}"
 mysqldump -u root -p $dbName > $backupTo/`date -Ins`.sql
 
-### STOP APACHE AND MYSQL ###
+### STOP APACHE ###
 echo -e "${GREEN}Stopping Apache...${NC}"
 service httpd stop
 
-echo -e "${GREEN}Stopping MySQL...${NC}"
-service mysqld stop
+#echo -e "${GREEN}Stopping MySQL...${NC}"
+#service mysqld stop
 
 ### REMOVE PREVIOUS OJS FROM htdocs ### 
 echo -e "${GREEN} Deleting old ojs from $pathToOjs${NC}"
@@ -97,8 +97,10 @@ sed -i 's/installed = Off/installed = On/' $pathToOjs/config.inc.php
 cd $pathToOjs
 chown -R $apacheUser:$apacheGroup *
 
-echo -e "${GREEN}Starting MySQL...${NC}"
-service mysqld start
+### START APACHE ###
+
+#echo -e "${GREEN}Starting MySQL...${NC}"
+#service mysqld start
 
 echo -e "${GREEN}Starting Apache...${NC}"
 service httpd start
