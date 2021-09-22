@@ -6,7 +6,7 @@ dbName=ojs # ojs dbname
 apacheUser=apache # apache username
 apacheGroup=apache # apache group
 oldVersion=`grep 'Git tag' /var/www/html/ojs/docs/RELEASE | awk {'print $3'}` # Old version is something like 3_2_1-1
-newVersionUrl=https://pkp.sfu.ca/ojs/download/ojs-3.2.1-2.tar.gz # Fill in with the corresponding url
+newVersionUrl=https://pkp.sfu.ca/ojs/download/ojs-3.3.0-8.tar.gz # Fill in with the corresponding url
 
 
 ### PRINTING COLORS ###
@@ -77,10 +77,15 @@ cd $pathToOjs
 mv public public-ORIGINAL
 cp -R $backupTo/ojs-$oldVersion/public .
 
-echo -e "${GREEN} Copying plugins folder to new OJS ${NC}"
-cd $pathToOjs
-mv plugins plugins-ORIGINAL
-cp -R $backupTo/ojs-$oldVersion/plugins .
+#echo -e "${GREEN} Copying plugins folder to new OJS ${NC}"
+#cd $pathToOjs
+#mv plugins plugins-ORIGINAL
+#cp -R $backupTo/ojs-$oldVersion/plugins .
+
+### COPY QUICKSUBMIT PLUGIN FROM PREVIOUS VERSION TO NEW VERSION...
+echo -e "${GREEN} Copying quickSubmit plguin folder to new OJS ${NC}"
+cp $pathToOjs
+cp -R  $backupTo/ojs-$oldVersion/plugins/importexport/quickSubmit ./plugins/importexport/
 
 ### PREPARE TO UPDATE ###
 
@@ -104,9 +109,3 @@ chown -R $apacheUser:$apacheGroup *
 
 echo -e "${GREEN}Starting Apache...${NC}"
 service httpd start
-
-
-
-
-
-
