@@ -83,9 +83,18 @@ cp -R $backupTo/ojs-$oldVersion/public .
 #cp -R $backupTo/ojs-$oldVersion/plugins .
 
 ### COPY QUICKSUBMIT PLUGIN FROM PREVIOUS VERSION TO NEW VERSION...
-echo -e "${GREEN} Copying quickSubmit plguin folder to new OJS ${NC}"
-cp $pathToOjs
-cp -R  $backupTo/ojs-$oldVersion/plugins/importexport/quickSubmit ./plugins/importexport/
+echo -e "${GREEN} Copying quickSubmit plugin folder to new OJS ${NC}"
+cp -R  $backupTo/ojs-$oldVersion/plugins/importexport/quickSubmit $pathToOjs/plugins/importexport/
+
+### COPY ONLINE FIRST PLUGIN FROM PREVIOUS VERSION TO NEW VERSION...
+### check https://redmine.unizar.es/issues/4245 for +details
+echo -e "${GREEN} Copying onlineFirst plugin folder to new OJS ${NC}"
+cp -R  $backupTo/ojs-$oldVersion/plugins/generic/onlineFirst $pathToOjs/plugins/generic/
+cp $pathToOjs/pages/article/ArticleHandler.inc.php $pathToOjs/pages/article/ArticleHandler.inc.php.ORIGINAL
+cp $backupTo/ojs-$oldVersion/pages/article/ArticleHandler.inc.php $pathToOjs/pages/article/ArticleHandler.inc.php
+cp $pathToOjs/templates/frontend/pages/indexJournal.tpl $pathToOjs/templates/frontend/pages/indexJournal.tpl.ORIGINAL
+sed -i 's/{call_hook name="Templates::Index::journal"}/{call_hook name="Templates::Index::journal"}{call_hook name="Onlinefirst::Journal::display"}/' $pathToOjs/templates/frontend/pages/indexJournal.tpl
+
 
 ### PREPARE TO UPDATE ###
 
