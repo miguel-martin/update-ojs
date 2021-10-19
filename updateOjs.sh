@@ -96,6 +96,11 @@ cp $pathToOjs/templates/frontend/pages/indexJournal.tpl $pathToOjs/templates/fro
 sed -i 's/{call_hook name="Templates::Index::journal"}/{call_hook name="Templates::Index::journal"}{call_hook name="Onlinefirst::Journal::display"}/' $pathToOjs/templates/frontend/pages/indexJournal.tpl
 
 
+### COPY PKP-PLN PLUGIN FROM PREVIOUS VERSION TO NEW VERSION
+echo -e "${GREEN} Copying PLN plugin folder to new OJS ${NC}"
+cp -R  $backupTo/ojs-$oldVersion/plugins/generic/pln $pathToOjs/plugins/generic/
+
+
 ### PREPARE TO UPDATE ###
 
 echo -e "${GREEN}Editing config.inc.php and change 'installed = On' to 'installed = Off' ${NC}"
