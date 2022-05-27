@@ -6,7 +6,7 @@ dbName=ojs # ojs dbname
 apacheUser=apache # apache username
 apacheGroup=apache # apache group
 oldVersion=`grep 'Git tag' /var/www/html/ojs/docs/RELEASE | awk {'print $3'}` # Old version is something like 3_2_1-1
-newVersionUrl=https://pkp.sfu.ca/ojs/download/ojs-3.3.0-8.tar.gz # Fill in with the corresponding url
+newVersionUrl=https://pkp.sfu.ca/ojs/download/ojs-3.3.0-10.tar.gz # Fill in with the corresponding url
 
 
 ### PRINTING COLORS ###
